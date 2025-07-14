@@ -1,5 +1,7 @@
 # Smart Auction Engine: A Simplified Model for Order Matching
 
+[![Rust](https://github.com/janrockdev/alternative-trading-system/actions/workflows/rust.yml/badge.svg)](https://github.com/janrockdev/alternative-trading-system/actions/workflows/rust.yml)
+
 ## Abstract
 This project presents a lightweight, Rust-based implementation of an auction engine designed to simulate order matching in an Alternative Trading System (ATS) for U.S. equities. Drawing inspiration from modern Smart Markets, the engine employs a greedy pairwise matching algorithm to optimize trades while adhering to National Best Bid and Offer (NBBO) constraints. By prioritizing aggressive orders and ensuring price improvement through midpoint clearing, it demonstrates foundational principles of efficient, fair execution.
 
