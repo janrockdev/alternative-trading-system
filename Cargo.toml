@@ -4,3 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+
+[[bin]]
+name = "smart-auction"
+path = "src/main.rs"
+
+[[bin]]
+name = "combinatorial-auction"
+path = "src/main-ca.rs"

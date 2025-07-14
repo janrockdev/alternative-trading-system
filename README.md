@@ -50,7 +50,7 @@ Rust (stable toolchain recommended).
 Clone the repository and execute:
 
 ```bash
-cargo run
+cargo run --bin smart-auction
 ```
 
 Sample output:
@@ -86,3 +86,12 @@ Future enhancements could include:
 Trade: Buy Order 1 <> Sell Order 3, Quantity: 100, Clearing Price: $99.80
 Trade: Buy Order 2 <> Sell Order 3, Quantity: 50, Clearing Price: $99.68
 This simulates matching with predefined orders under an NBBO of bid $99.50 and ask $100.50.
+
+## Extended Combinatorial Auction Example
+For a more complex auction scenario, see `src/main-ca.rs`, which implements a combinatorial auction engine. This version extends the basic model to handle multiple securities and more complex order matching strategies, allowing for richer simulations of market dynamics.
+
+## Example Combinatorial Auction
+To run the combinatorial auction example, execute:
+```bash
+cargo run --bin combinatorial-auction
+```
