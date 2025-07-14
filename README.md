@@ -95,3 +95,15 @@ To run the combinatorial auction example, execute:
 ```bash
 cargo run --bin combinatorial-auction
 ```
+
+Sample output:
+
+```text
+Greedy Matched Trades:
+Trade: Buy Order 1 <> Sell Order 3, Quantity: 100, Clearing Price: $99.80
+Trade: Buy Order 2 <> Sell Order 3, Quantity: 50, Clearing Price: $99.67
+
+Combinatorial Matched Trades (Uniform Clearing):
+Trade: Buy Order 1 <> Sell Order 3, Quantity: 100, Clearing Price: $99.67
+Trade: Buy Order 2 <> Sell Order 3, Quantity: 50, Clearing Price: $99.67
+```
