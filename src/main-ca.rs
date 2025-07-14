@@ -223,3 +223,103 @@ fn main() {
         );
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn setup_nbbo() -> NBBO {
+        NBBO { bid: 99.50, ask: 100.50 }
+    }
+
+    fn sample_buy_orders() -> Vec<Order> {
+        vec![
+            Order { id: 1, side: OrderSide::Buy, price: 100.00, quantity: 100 },
+            Order { id: 2, side: OrderSide::Buy, price: 99.75, quantity: 200 },
+        ]
+    }
+
+    fn sample_sell_orders() -> Vec<Order> {
+        vec![
+            Order { id: 3, side: OrderSide::Sell, price: 99.60, quantity: 150 },
+            Order { id: 4, side: OrderSide::Sell, price: 100.10, quantity: 100 },
+        ]
+    }
+
+    #[test]
+    fn test_greedy_auction_sample() {
+        let engine = AuctionEngine::new(setup_nbbo());
+        let trades = engine.run_greedy_auction(&sample_buy_orders(), &sample_sell_orders());
+
+        let expected = vec![
+            Trade { buy_order_id: 1, sell_order_id: 3, quantity: 100, clearing_price: 99.80 },
+            Trade { buy_order_id: 2, sell_order_id: 3, quantity: 50, clearing_price: 99.675 },
+        ];
+
+        assert_eq!(trades.len(), expected.len());
+        for (actual, exp) in trades.iter().zip(expected.iter()) {
+            assert_eq!(actual.buy_order_id, exp.buy_order_id);
+            assert_eq!(actual.sell_order_id, exp.sell_order_id);
+            assert_eq!(actual.quantity, exp.quantity);
+            assert!((actual.clearing_price - exp.clearing_price).abs() < 0.001);
+        }
+    }
+
+    #[test]
+    fn test_combinatorial_auction_sample() {
+        let engine = AuctionEngine::new(setup_nbbo());
+        let trades = engine.run_combinatorial_auction(&sample_buy_orders(), &sample_sell_orders());
+
+        let expected = vec![
+            Trade { buy_order_id: 1, sell_order_id: 3, quantity: 100, clearing_price: 99.675 },
+            Trade { buy_order_id: 2, sell_order_id: 3, quantity: 50, clearing_price: 99.675 },
+        ];
+
+        assert_eq!(trades.len(), expected.len());
+        for (actual, exp) in trades.iter().zip(expected.iter()) {
+            assert_eq!(actual.buy_order_id, exp.buy_order_id);
+            assert_eq!(actual.sell_order_id, exp.sell_order_id);
+            assert_eq!(actual.quantity, exp.quantity);
+            assert!((actual.clearing_price - exp.clearing_price).abs() < 0.001);
+        }
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid buy order ID 1: expected Buy, found Sell")]
+    fn test_invalid_buy_side_panics() {
+        let engine = AuctionEngine::new(setup_nbbo());
+        let invalid_buy = vec![Order { id: 1, side: OrderSide::Sell, price: 100.00, quantity: 100 }];
+        engine.run_greedy_auction(&invalid_buy, &[]);
+    }
+
+    #[test]
+    #[should_panic(expected = "Invalid sell order ID 3: expected Sell, found Buy")]
+    fn test_invalid_sell_side_panics() {
+        let engine = AuctionEngine::new(setup_nbbo());
+        let invalid_sell = vec![Order { id: 3, side: OrderSide::Buy, price: 99.60, quantity: 150 }];
+        engine.run_greedy_auction(&[], &invalid_sell);
+    }
+
+    #[test]
+    fn test_no_matches() {
+        let engine = AuctionEngine::new(setup_nbbo());
+        let buy_orders = vec![Order { id: 1, side: OrderSide::Buy, price: 99.00, quantity: 100 }];
+        let sell_orders = vec![Order { id: 3, side: OrderSide::Sell, price: 101.00, quantity: 100 }];
+        let trades_greedy = engine.run_greedy_auction(&buy_orders, &sell_orders);
+        let trades_combo = engine.run_combinatorial_auction(&buy_orders, &sell_orders);
+        assert!(trades_greedy.is_empty());
+        assert!(trades_combo.is_empty());
+    }
+
+    #[test]
+    fn test_zero_quantity() {
+        let engine = AuctionEngine::new(setup_nbbo());
+        let buy_orders = vec![Order { id: 1, side: OrderSide::Buy, price: 100.00, quantity: 0 }];
+        let sell_orders = vec![Order { id: 3, side: OrderSide::Sell, price: 99.60, quantity: 0 }];
+        let trades_greedy = engine.run_greedy_auction(&buy_orders, &sell_orders);
+        let trades_combo = engine.run_combinatorial_auction(&buy_orders, &sell_orders);
+        assert!(trades_greedy.is_empty());
+        assert!(trades_combo.is_empty());
+    }
+
+}
